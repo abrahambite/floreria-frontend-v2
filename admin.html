@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Kalamena</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      padding: 2rem;
+    }
+    .section {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .section h2 {
+      margin-top: 0;
+    }
+    .product img, .pedido img {
+      max-width: 100px;
+      border-radius: 6px;
+    }
+    .lista {
+      max-height: 400px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel Administrativo Kalamena</h1>
+  </header>
+
+  <div class="admin-grid">
+    <!-- Subir productos -->
+    <div class="section">
+      <h2>Nuevo Producto</h2>
+      <form id="product-form" enctype="multipart/form-data">
+        <input type="text" name="name" placeholder="Nombre" required />
+        <input type="number" name="price" placeholder="Precio" required />
+        <textarea name="description" placeholder="Descripción" required></textarea>
+        <input type="file" name="image" required />
+        <button type="submit">Subir Producto</button>
+        <p id="mensaje-producto"></p>
+      </form>
+    </div>
+
+    <!-- Productos existentes -->
+    <div class="section">
+      <h2>Productos Activos</h2>
+      <div id="productos" class="lista"></div>
+    </div>
+
+    <!-- Pedidos -->
+    <div class="section" style="grid-column: span 2">
+      <h2>Pedidos Recibidos</h2>
+      <div id="pedidos" class="lista"></div>
+    </div>
+  </div>
+
+  <script>
+    // Subir producto
+    document.getElementById('product-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      const res = await fetch('https://floreria-backend.onrender.com/api/products', {
+        method: 'POST', body: data
+      });
+      const msg = document.getElementById('mensaje-producto');
+      if (res.ok) {
+        msg.textContent = 'Producto subido ✅';
+        form.reset();
+        cargarProductos();
+      } else {
+        msg.textContent = 'Error al subir producto';
+      }
+    });
+
+    // Mostrar productos existentes
+    async function cargarProductos() {
+      const res = await fetch('https://floreria-backend.onrender.com/api/products');
+      const data = await res.json();
+      const cont = document.getElementById('productos');
+      cont.innerHTML = data.map(p => `
+        <div class="product">
+          <img src="${p.imageUrl}" alt="${p.name}" />
+          <p><strong>${p.name}</strong><br>$${p.price}</p>
+        </div>
+      `).join('');
+    }
+
+    // Mostrar pedidos recibidos
+    async function cargarPedidos() {
+      const res = await fetch('https://floreria-backend.onrender.com/api/orders');
+      const data = await res.json();
+      const cont = document.getElementById('pedidos');
+      if (!data.length) {
+        cont.innerHTML = '<p>No hay pedidos aún</p>';
+        return;
+      }
+      cont.innerHTML = data.map(p => `
+        <div class="pedido">
+          <p><strong>${p.nombre}</strong> (${p.telefono})</p>
+          <p>${p.mensaje}</p>
+          <img src="${p.comprobanteUrl}" alt="Comprobante" />
+        </div>
+      `).join('');
+    }
+
+    cargarProductos();
+    cargarPedidos();
+  </script>
+</body>
+</html>
