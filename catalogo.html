@@ -1,60 +1,23 @@
-const catalog = document.getElementById('catalog');
-const carritoDiv = document.getElementById('carrito');
-let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catálogo | Kalamena</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Catálogo de Kalamena</h1>
+    <p>Selecciona tus arreglos favoritos</p>
+  </header>
 
-if (catalog) {
-  fetch('https://floreria-backend.onrender.com/api/products')
-    .then(res => res.json())
-    .then(data => {
-      data.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'product';
-        div.innerHTML = `
-          <img src="${p.imageUrl}" alt="${p.name}">
-          <h3>${p.name}</h3>
-          <p>${p.description}</p>
-          <button onclick='agregarAlCarrito(${JSON.stringify(p)})'>Agregar</button>
-        `;
-        catalog.appendChild(div);
-      });
-    });
-}
+  <main class="catalog" id="catalog">
+    <!-- Productos se cargan aquí con JS -->
+  </main>
 
-function agregarAlCarrito(producto) {
-  carrito.push(producto);
-  localStorage.setItem('carrito', JSON.stringify(carrito));
-  alert('Agregado al carrito');
-}
+  <a href="carrito.html" class="btn carrito-btn">Ver Carrito 🛒</a>
 
-if (carritoDiv) {
-  if (carrito.length === 0) {
-    carritoDiv.innerHTML = '<p>Tu carrito está vacío.</p>';
-  } else {
-    carritoDiv.innerHTML = carrito.map(p => `
-      <div>
-        <strong>${p.name}</strong> - $${p.price}
-      </div>
-    `).join('');
-  }
-
-  const form = document.getElementById('pedido-form');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    formData.append('carrito', JSON.stringify(carrito));
-
-    const res = await fetch('https://floreria-backend.onrender.com/api/orders', {
-      method: 'POST',
-      body: formData
-    });
-
-    const estado = document.getElementById('estado');
-    if (res.ok) {
-      estado.textContent = 'Pedido enviado con éxito 🎉';
-      localStorage.removeItem('carrito');
-      form.reset();
-    } else {
-      estado.textContent = 'Error al enviar el pedido';
-    }
-  });
-}
+  <script src="main.js"></script>
+</body>
+</html>
