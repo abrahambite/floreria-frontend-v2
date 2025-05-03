@@ -64,12 +64,14 @@
   </div>
 
   <script>
+    const API = 'https://floreria-backend.onrender.com';
+
     // Subir producto
     document.getElementById('product-form').addEventListener('submit', async e => {
       e.preventDefault();
       const form = e.target;
       const data = new FormData(form);
-      const res = await fetch('https://floreria-backend.onrender.com/api/products', {
+      const res = await fetch(`${API}/api/products`, {
         method: 'POST', body: data
       });
       const msg = document.getElementById('mensaje-producto');
@@ -84,12 +86,12 @@
 
     // Mostrar productos existentes
     async function cargarProductos() {
-      const res = await fetch('https://floreria-backend.onrender.com/api/products');
+      const res = await fetch(`${API}/api/products`);
       const data = await res.json();
       const cont = document.getElementById('productos');
       cont.innerHTML = data.map(p => `
         <div class="product">
-          <img src="${p.imageUrl}" alt="${p.name}" />
+          <img src="${API}${p.imageUrl}" alt="${p.name}" />
           <p><strong>${p.name}</strong><br>$${p.price}</p>
         </div>
       `).join('');
@@ -97,7 +99,7 @@
 
     // Mostrar pedidos recibidos
     async function cargarPedidos() {
-      const res = await fetch('https://floreria-backend.onrender.com/api/orders');
+      const res = await fetch(`${API}/api/orders`);
       const data = await res.json();
       const cont = document.getElementById('pedidos');
       if (!data.length) {
@@ -108,7 +110,7 @@
         <div class="pedido">
           <p><strong>${p.nombre}</strong> (${p.telefono})</p>
           <p>${p.mensaje}</p>
-          <img src="${p.comprobanteUrl}" alt="Comprobante" />
+          <img src="${API}${p.comprobanteUrl}" alt="Comprobante" />
         </div>
       `).join('');
     }
