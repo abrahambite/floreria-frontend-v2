@@ -1,9 +1,10 @@
 const catalog = document.getElementById('catalog');
 const carritoDiv = document.getElementById('carrito');
 let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+const API = 'https://floreria-backend.onrender.com';
 
 if (catalog) {
-  fetch('https://floreria-backend.onrender.com/api/products')
+  fetch(`${API}/api/products`)
     .then(res => res.json())
     .then(data => {
       if (!data.length) {
@@ -15,7 +16,7 @@ if (catalog) {
         const div = document.createElement('div');
         div.className = 'product';
         div.innerHTML = `
-          <img src="${p.imageUrl}" alt="${p.name}">
+          <img src="${API}${p.imageUrl}" alt="${p.name}">
           <h3>${p.name}</h3>
           <p>${p.description}</p>
           <strong>$${p.price}</strong>
@@ -25,8 +26,7 @@ if (catalog) {
       });
     })
     .catch(err => {
-      catalog.innerHTML = '<p style="text-align:center; color:red;">Error al cargar productos. Revisa tu conexión.</p>';
-      console.error(err);
+      catalog.innerHTML = '<p style="text-align:center; color:red;">Error al cargar productos.</p>';
     });
 }
 
@@ -54,7 +54,7 @@ if (carritoDiv) {
       const formData = new FormData(form);
       formData.append('carrito', JSON.stringify(carrito));
 
-      const res = await fetch('https://floreria-backend.onrender.com/api/orders', {
+      const res = await fetch(`${API}/api/orders`, {
         method: 'POST',
         body: formData
       });
