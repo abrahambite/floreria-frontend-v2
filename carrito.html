@@ -1,1 +1,26 @@
-...
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tu Carrito | Florería Bella</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Finalizar Pedido</h1>
+  </header>
+  <main>
+    <div id="carrito"></div>
+    <form id="pedido-form" enctype="multipart/form-data">
+      <input type="text" name="nombre" placeholder="Tu nombre completo" required />
+      <input type="tel" name="telefono" placeholder="Tu número de WhatsApp" required />
+      <textarea name="mensaje" placeholder="Dedicatoria o mensaje especial"></textarea>
+      <input type="file" name="comprobante" accept="image/*" required />
+      <button type="submit">Enviar Pedido</button>
+      <p id="estado"></p>
+    </form>
+  </main>
+  <script src="main.js"></script>
+</body>
+</html>
