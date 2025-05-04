@@ -29,6 +29,9 @@
       max-height: 400px;
       overflow: auto;
     }
+    .pedido select {
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -84,7 +87,7 @@
       }
     });
 
-    // Mostrar productos existentes
+    // Mostrar productos existentes con opciones de editar/eliminar
     async function cargarProductos() {
       const res = await fetch(`${API}/api/products`);
       const data = await res.json();
@@ -93,11 +96,18 @@
         <div class="product">
           <img src="${API}${p.imageUrl}" alt="${p.name}" />
           <p><strong>${p.name}</strong><br>$${p.price}</p>
+          <button onclick="eliminarProducto('${p._id}')">Eliminar</button>
         </div>
       `).join('');
     }
 
-    // Mostrar pedidos recibidos
+    async function eliminarProducto(id) {
+      if (!confirm('¿Eliminar este producto?')) return;
+      const res = await fetch(`${API}/api/products/${id}`, { method: 'DELETE' });
+      if (res.ok) cargarProductos();
+    }
+
+    // Mostrar pedidos con selector de estado
     async function cargarPedidos() {
       const res = await fetch(`${API}/api/orders`);
       const data = await res.json();
@@ -111,8 +121,23 @@
           <p><strong>${p.nombre}</strong> (${p.telefono})</p>
           <p>${p.mensaje}</p>
           <img src="${API}${p.comprobanteUrl}" alt="Comprobante" />
+          <p><strong>Estado:</strong> 
+            <select onchange="actualizarEstado('${p._id}', this.value)">
+              <option value="Pendiente" ${p.estado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+              <option value="En proceso" ${p.estado === 'En proceso' ? 'selected' : ''}>En proceso</option>
+              <option value="Entregado" ${p.estado === 'Entregado' ? 'selected' : ''}>Entregado</option>
+            </select>
+          </p>
         </div>
       `).join('');
+    }
+
+    async function actualizarEstado(id, estado) {
+      await fetch(`${API}/api/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado })
+      });
     }
 
     cargarProductos();
