@@ -32,6 +32,12 @@
     .pedido select {
       margin-top: 0.5rem;
     }
+    .editar-form input, .editar-form textarea {
+      width: 100%;
+      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -93,21 +99,45 @@
       const data = await res.json();
       const cont = document.getElementById('productos');
       cont.innerHTML = data.map(p => `
-        <div class="product">
+        <div class="product" data-id="${p._id}">
           <img src="${API}${p.imageUrl}" alt="${p.name}" />
-          <p><strong>${p.name}</strong><br>$${p.price}</p>
-          <button onclick="eliminarProducto('${p._id}')">Eliminar</button>
+          <form class="editar-form" onsubmit="return editarProducto(event, '${p._id}')">
+            <label>Nombre</label>
+            <input type="text" name="name" value="${p.name}" />
+            <label>Precio</label>
+            <input type="number" name="price" value="${p.price}" />
+            <label>Descripción</label>
+            <textarea name="description">${p.description}</textarea>
+            <button type="submit">Actualizar</button>
+            <button type="button" onclick="eliminarProducto('${p._id}', this)">Eliminar</button>
+          </form>
         </div>
       `).join('');
     }
 
-    async function eliminarProducto(id) {
-      if (!confirm('¿Eliminar este producto?')) return;
-      const res = await fetch(`${API}/api/products/${id}`, { method: 'DELETE' });
+    async function editarProducto(e, id) {
+      e.preventDefault();
+      const form = e.target;
+      const body = {
+        name: form.name.value,
+        price: form.price.value,
+        description: form.description.value
+      };
+      const res = await fetch(`${API}/api/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
       if (res.ok) cargarProductos();
     }
 
-    // Mostrar pedidos con selector de estado
+    async function eliminarProducto(id, btn) {
+      if (!confirm('¿Eliminar este producto?')) return;
+      const res = await fetch(`${API}/api/products/${id}`, { method: 'DELETE' });
+      if (res.ok) btn.closest('.product').remove();
+    }
+
+    // Mostrar pedidos con selector de estado y botón de eliminar
     async function cargarPedidos() {
       const res = await fetch(`${API}/api/orders`);
       const data = await res.json();
@@ -128,6 +158,7 @@
               <option value="Entregado" ${p.estado === 'Entregado' ? 'selected' : ''}>Entregado</option>
             </select>
           </p>
+          <button onclick="eliminarPedido('${p._id}', this)">Eliminar</button>
         </div>
       `).join('');
     }
@@ -138,6 +169,12 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ estado })
       });
+    }
+
+    async function eliminarPedido(id, btn) {
+      if (!confirm('¿Eliminar este pedido?')) return;
+      const res = await fetch(`${API}/api/orders/${id}`, { method: 'DELETE' });
+      if (res.ok) btn.closest('.pedido').remove();
     }
 
     cargarProductos();
